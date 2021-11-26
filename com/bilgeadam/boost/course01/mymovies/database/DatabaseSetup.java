@@ -73,7 +73,7 @@ import java.sql.Statement;
 				+ "ALTER TABLE movie_ratings "
 				+ "    OWNER to postgres; "
 				+ " "
-				+ "GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE movie_ratings TO omdb;");
+				+ "GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE movie_ratings TO postgresql;");
 		
 		System.out.println("Table MOVIE_RATINGS creation "  + (success==0?"successful":"failed"));
 	}
@@ -205,8 +205,8 @@ import java.sql.Statement;
 	
 	private void createRole(Statement stmt) throws SQLException {
 		int success = stmt.executeUpdate(
-				"DROP USER IF EXISTS omdb;"
-						+ "CREATE USER omdb WITH "
+				"DROP USER IF EXISTS postgresql;"
+						+ "CREATE USER postgresql WITH "
 						+ "    	LOGIN "
 						+ "    	NOSUPERUSER "
 						+ "    	NOCREATEDB "
@@ -214,8 +214,8 @@ import java.sql.Statement;
 						+ "    	INHERIT "
 						+ "    	NOREPLICATION "
 						+ "    	CONNECTION LIMIT -1 "
-						+ "    	PASSWORD 'omdb';"
-						+ "GRANT pg_read_all_data, pg_write_all_data TO omdb;" );
+						+ "    	PASSWORD 'postgresql';"
+						+ "GRANT pg_read_all_data, pg_write_all_data TO postgresql;" );
 		System.out.println("User creation " + (success==0?"successful":"failed"));
 	}
 	
@@ -255,3 +255,12 @@ import java.sql.Statement;
 	}
 	
 }
+
+ /*
+ CREATE view years_movies_view AS
+ select g.genre, m.name from movies m, genres g, movie_genres mg where 
+ 			m.year=2000 AND mg.movie_id=m.id AND 
+ 			mg.genre_id=g.id AND
+ 			g.genre IN ('ANIMATION', 'CRIME', 'COMEDY')
+ 			GROUP BY g.genre, m.name
+ */
