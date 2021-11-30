@@ -73,7 +73,7 @@ import java.sql.Statement;
 				+ "ALTER TABLE movie_ratings "
 				+ "    OWNER to postgres; "
 				+ " "
-				+ "GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE movie_ratings TO postgresql;");
+				+ "GRANT INSERT, SELECT, UPDATE, DELETE ON TABLE movie_ratings TO omdb;");
 		
 		System.out.println("Table MOVIE_RATINGS creation "  + (success==0?"successful":"failed"));
 	}
@@ -205,8 +205,8 @@ import java.sql.Statement;
 	
 	private void createRole(Statement stmt) throws SQLException {
 		int success = stmt.executeUpdate(
-				"DROP USER IF EXISTS postgresql;"
-						+ "CREATE USER postgresql WITH "
+				"DROP USER IF EXISTS omdb;"
+						+ "CREATE USER omdb WITH "
 						+ "    	LOGIN "
 						+ "    	NOSUPERUSER "
 						+ "    	NOCREATEDB "
@@ -214,8 +214,8 @@ import java.sql.Statement;
 						+ "    	INHERIT "
 						+ "    	NOREPLICATION "
 						+ "    	CONNECTION LIMIT -1 "
-						+ "    	PASSWORD 'postgresql';"
-						+ "GRANT pg_read_all_data, pg_write_all_data TO postgresql;" );
+						+ "    	PASSWORD 'omdb';"
+						+ "GRANT pg_read_all_data, pg_write_all_data TO omdb;" );
 		System.out.println("User creation " + (success==0?"successful":"failed"));
 	}
 	

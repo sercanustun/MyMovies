@@ -28,7 +28,7 @@ public class ServerCommunication {
 		while (waitForServer) {
 			waitForServer = this.introduce(id);
 			if (waitForServer) {
-				System.out.println("Sunucu verileri yüklüyor... ");
+				System.out.println("Sunucu verileri yÃ¼klÃ¼yor... ");
 				try {
 					Thread.sleep(10000);
 				}

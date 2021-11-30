@@ -38,7 +38,7 @@ public class MyMovieClient {
 
 	private void checkDatabase() {
 		if (!Database.getInstance().isInitialized()) {
-			System.err.println("Database is not initialized. Creating it....");
+			System.err.println("Database is not initialized. Creating it...");
 			 new DatabaseSetup().execute();
 		}
 		else {

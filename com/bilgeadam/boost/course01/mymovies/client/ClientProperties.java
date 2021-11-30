@@ -10,7 +10,7 @@ public class ClientProperties {
 	private ClientProperties() {
 		this.props = Props.getInstance();
 		props.setPropsFilePath(
-				"C:\\Users\\babur.somer\\baboost-java\\MyMovies\\src\\com\\bilgeadam\\boost\\course01\\mymovies\\client",
+				"C:\\Users\\sercu\\eclipse-workspace\\mymovies\\src\\com\\bilgeadam\\boost\\course01\\mymovies\\client",
 				"client.properties");
 	}
 
