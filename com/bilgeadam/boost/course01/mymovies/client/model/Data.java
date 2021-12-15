@@ -18,18 +18,18 @@ import com.bilgeadam.boost.course01.mymovies.client.ClientProperties;
 import com.bilgeadam.boost.course01.mymovies.client.common.DataProvider;
 
 public class Data {
-
+	
 	public Data() {
 		super();
 	}
-
+	
 	public static void parse() {
 		parseMovies();
 		parseLinks();
 		parseTags();
 		parseRatings();
 	}
-
+	
 	private static void parseTags() {
 		File file;
 		file = new File(ClientProperties.getInstance().getTagsCSV());
@@ -42,12 +42,11 @@ public class Data {
 					continue;
 				Tag.parse(line);
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	private static void parseRatings() {
 		File file;
 		file = new File(ClientProperties.getInstance().getRatingsCSV());
@@ -60,12 +59,11 @@ public class Data {
 					continue;
 				Rating.parse(line);
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	private static void parseLinks() {
 		File file;
 		file = new File(ClientProperties.getInstance().getLinksCSV());
@@ -78,15 +76,14 @@ public class Data {
 					continue;
 				Movie.parseLink(line);
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	private static void parseMovies() {
 		File file = new File(ClientProperties.getInstance().getMoviesCSV());
-
+		
 		try (FileReader fR = new FileReader(file); BufferedReader bR = new BufferedReader(fR);) {
 			while (true) {
 				String line = bR.readLine();
@@ -96,39 +93,40 @@ public class Data {
 					continue;
 				Movie.parse(line);
 			}
-		}
-		catch (FileNotFoundException ex) {
+		} catch (FileNotFoundException ex) {
 			ex.printStackTrace();
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
-
+	
 	public boolean importMovies() {
 		try (Connection conn = Database.getInstance().getConnection(); Statement stmt = conn.createStatement();) {
-//			return stmt.execute("COPY movies FROM '" + ClientProperties.getInstance().getMoviesCSV() + "' DELIMITER ',' CSV HEADER");
-		}
-		catch (Exception ex) {
+			// return stmt.execute("COPY movies FROM '" +
+			// ClientProperties.getInstance().getMoviesCSV() + "' DELIMITER ',' CSV
+			// HEADER");
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
-
+		
 		return false;
 	}
-
+	
 	public boolean importTags() {
 		try (Connection conn = Database.getInstance().getConnection(); Statement stmt = conn.createStatement();) {
-//			return stmt.execute("COPY movies FROM '" + ClientProperties.getInstance().getMoviesCSV() + "' DELIMITER ',' CSV HEADER");
-		}
-		catch (Exception ex) {
+			// return stmt.execute("COPY movies FROM '" +
+			// ClientProperties.getInstance().getMoviesCSV() + "' DELIMITER ',' CSV
+			// HEADER");
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
-
+		
 		return false;
 	}
-
+	
 	public static void load() {
 		loadMovies();
+		loadLinks();
 		loadGenres();
 		loadTags();
 		loadUsers();
@@ -136,10 +134,10 @@ public class Data {
 		loadMovieTags();
 		loadMovieRatings();
 	}
-
+	
 	private static void loadMovies() {
-		Set<Long> keys  = DataProvider.getInstance().getMovies().keySet();
-		String    query = "INSERT INTO movies (id, name, year, imdb_id) VALUES (?, ?, ?, ?)";
+		Set<Long> keys = DataProvider.getInstance().getMovies().keySet();
+		String query = "INSERT INTO movies (id, name, year, imdb_id) VALUES (?, ?, ?, ?)";
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
 			for (Iterator<Long> iterator = keys.iterator(); iterator.hasNext();) {
@@ -150,15 +148,32 @@ public class Data {
 				stmt.setString(4, movie.getImdb());
 				stmt.execute();
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
+	private static void loadLinks() {
+		Set<Long> keys = DataProvider.getInstance().getMovies().keySet();
+		String query = "INSERT INTO links (id, imdb, tmdb) VALUES (?, ?, ?)";
+		try (Connection conn = Database.getInstance().getConnection();
+				PreparedStatement stmt = conn.prepareStatement(query);) {
+			for (Iterator<Long> iterator = keys.iterator(); iterator.hasNext();) {
+				Movie movie = DataProvider.getInstance().getMovie(iterator.next());
+				Link link = movie.getLink();
+				stmt.setLong(1, link.getId());
+				stmt.setString(2, link.getImdb());
+				stmt.setString(3, link.getTmdb());
+				stmt.execute();
+			}
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
+		}
+	}
+	
 	private static void loadGenres() {
-		Set<String> keys  = DataProvider.getInstance().getTypes().keySet();
-		String      query = "INSERT INTO genres (id, genre) VALUES (?, ?)";
+		Set<String> keys = DataProvider.getInstance().getTypes().keySet();
+		String query = "INSERT INTO genres (id, genre) VALUES (?, ?)";
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
 			for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
@@ -167,15 +182,14 @@ public class Data {
 				stmt.setString(2, genre.getName());
 				stmt.execute();
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
 	private static void loadTags() {
-		Set<String> keys  = DataProvider.getInstance().getTags().keySet();
-		String      query = "INSERT INTO tags (id, tag) VALUES (?, ?)";
+		Set<String> keys = DataProvider.getInstance().getTags().keySet();
+		String query = "INSERT INTO tags (id, tag) VALUES (?, ?)";
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
 			for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
@@ -184,15 +198,14 @@ public class Data {
 				stmt.setString(2, tag.getTag());
 				stmt.execute();
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
 	private static void loadUsers() {
-		Set<Long> keys  = DataProvider.getInstance().getUsers().keySet();
-		String    query = "INSERT INTO users (id, name) VALUES (?, ?)";
+		Set<Long> keys = DataProvider.getInstance().getUsers().keySet();
+		String query = "INSERT INTO users (id, name) VALUES (?, ?)";
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
 			for (Iterator<Long> iterator = keys.iterator(); iterator.hasNext();) {
@@ -201,19 +214,18 @@ public class Data {
 				stmt.setString(2, user.getName());
 				stmt.execute();
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
 	private static void loadMovieGenres() {
-		String    query     = "INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)";
+		String query = "INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)";
 		Set<Long> movieKeys = DataProvider.getInstance().getMovies().keySet();
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
 			for (Iterator<Long> iterator = movieKeys.iterator(); iterator.hasNext();) {
-				Movie           movie  = DataProvider.getInstance().getMovies().get(iterator.next());
+				Movie movie = DataProvider.getInstance().getMovies().get(iterator.next());
 				ArrayList<Long> genres = movie.getGenres();
 				for (Iterator<Long> iterator2 = genres.iterator(); iterator2.hasNext();) {
 					Long genreId = iterator2.next();
@@ -222,26 +234,25 @@ public class Data {
 					stmt.execute();
 				}
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
 	private static void loadMovieTags() {
-		String    query     = "INSERT INTO movie_tags (movie_id, user_id, tag_id, tagged_at) VALUES (?, ?, ?, ?)";
+		String query = "INSERT INTO movie_tags (movie_id, user_id, tag_id, tagged_at) VALUES (?, ?, ?, ?)";
 		Set<Long> movieKeys = DataProvider.getInstance().getMovies().keySet();
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
-
+			
 			for (Iterator<Long> iterator = movieKeys.iterator(); iterator.hasNext();) {
-				Movie                    movie        = DataProvider.getInstance().getMovies().get(iterator.next());
-				HashMap<Long, Timestamp> tags      = movie.getTags();                                            // tagID, Timestamp
-				HashMap<Long, Long>      taggingUsers = movie.getTagggingUsers();                                   // tagID, userID
-
+				Movie movie = DataProvider.getInstance().getMovies().get(iterator.next());
+				HashMap<Long, Timestamp> tags = movie.getTags(); // tagID, Timestamp
+				HashMap<Long, Long> taggingUsers = movie.getTagggingUsers(); // tagID, userID
+				
 				Set<Long> tagKeys = tags.keySet();
-				for (Iterator<Long> iterator2 = tagKeys.iterator(); iterator2.hasNext();) { 
-					Long   tagId = iterator2.next();  
+				for (Iterator<Long> iterator2 = tagKeys.iterator(); iterator2.hasNext();) {
+					Long tagId = iterator2.next();
 					Timestamp time = tags.get(tagId);
 					Long userId = taggingUsers.get(tagId);
 					stmt.setLong(1, movie.getId());
@@ -251,27 +262,26 @@ public class Data {
 					stmt.execute();
 				}
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
-
+	
 	private static void loadMovieRatings() {
-		String    query     = "INSERT INTO movie_ratings (movie_id, user_id, rating, rated_at) VALUES (?, ?, ?, ?)";
+		String query = "INSERT INTO movie_ratings (movie_id, user_id, rating, rated_at) VALUES (?, ?, ?, ?)";
 		Set<Long> movieKeys = DataProvider.getInstance().getMovies().keySet();
 		try (Connection conn = Database.getInstance().getConnection();
 				PreparedStatement stmt = conn.prepareStatement(query);) {
-
+			
 			for (Iterator<Long> iterator = movieKeys.iterator(); iterator.hasNext();) {
-				Movie                 movie   = DataProvider.getInstance().getMovies().get(iterator.next());
-				HashMap<Long, Rating> ratings = movie.getRatings();                                         // userId,
-																											// Rating
-
+				Movie movie = DataProvider.getInstance().getMovies().get(iterator.next());
+				HashMap<Long, Rating> ratings = movie.getRatings(); // userId,
+																	// Rating
+				
 				Set<Long> ratingKeys = ratings.keySet();
 				for (Iterator<Long> iterator2 = ratingKeys.iterator(); iterator2.hasNext();) { // for(ilk değer atama;
 																								// koşul, arttırma)
-					Long   userId = iterator2.next();   // arttırma ama bu satırda
+					Long userId = iterator2.next(); // arttırma ama bu satırda
 					Rating rating = ratings.get(userId);
 					stmt.setLong(1, movie.getId());
 					stmt.setLong(2, userId);
@@ -280,8 +290,7 @@ public class Data {
 					stmt.execute();
 				}
 			}
-		}
-		catch (Exception ex) {
+		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
 	}
